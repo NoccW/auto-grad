@@ -1,0 +1,23 @@
+.DS_Store
+node_modules/
+uploads/
+*.log
+*.tmp
+*.cache
+dist/
+
+# Backend binaries
+backend/app.exe
+backend/server
+
+# Env and secrets
+.env
+backend/.env
+
+# Go build cache
+bin/
+*.out
+
+# Editor
+.idea/
+.vscode/
