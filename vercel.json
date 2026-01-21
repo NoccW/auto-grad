@@ -7,6 +7,10 @@
     {
       "source": "/uploads/(.*)",
       "destination": "http://8.136.37.94:8080/uploads/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/frontend/$1"
     }
   ]
 }
