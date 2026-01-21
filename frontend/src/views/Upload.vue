@@ -204,13 +204,14 @@ export default {
 
     const handleUploadSuccess = (response) => {
       uploading.value = false;
-      paperImageUrl.value = response.relativePath;
+      paperImageUrl.value = response.relativePath || response.url || response.filename;
       ElMessage.success("试卷图片上传成功");
     };
 
     const handleAnswerUploadSuccess = (response) => {
       uploadingAnswer.value = false;
-      answerImageUrl.value = response.relativePath;
+      answerImageUrl.value =
+        response.relativePath || response.url || response.filename;
       ElMessage.success("参考答案上传成功");
     };
 
@@ -222,7 +223,10 @@ export default {
     };
 
     const getImageUrl = (relativePath) => {
-      // 这里需要根据实际的文件服务器配置调整
+      if (!relativePath) return "";
+      // 兼容后端返回的 url 或文件名
+      if (relativePath.startsWith("http")) return relativePath;
+      if (relativePath.startsWith("/")) return relativePath;
       return `/uploads/${relativePath}`;
     };
 
@@ -237,7 +241,7 @@ export default {
       try {
         const token = localStorage.getItem("token");
 
-        // 创建批改记录
+        // 创建批改记录（后端可异步接入真实评分流程）
         const createResponse = await fetch("/api/grading", {
           method: "POST",
           headers: {
@@ -256,24 +260,8 @@ export default {
           throw new Error(createData.error || "创建批改记录失败");
         }
 
-        // 开始处理批改
-        const processResponse = await fetch(
-          `/api/grading/${createData.id}/process`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        if (processResponse.ok) {
-          ElMessage.success("批改完成");
-          router.push(`/result/${createData.id}`);
-        } else {
-          const processData = await processResponse.json();
-          ElMessage.error(processData.error || "批改处理失败");
-        }
+        ElMessage.success("批改任务已提交，等待处理");
+        router.push(`/result/${createData.id}`);
       } catch (error) {
         console.error("批改错误:", error);
         ElMessage.error("批改失败，请重试");

@@ -4,52 +4,57 @@ import (
 	"auto-grad-backend/internal/api"
 	"auto-grad-backend/internal/config"
 	"auto-grad-backend/internal/db"
-	"auto-grad-backend/internal/models"
-	"auto-grad-backend/internal/services"
-	"auto-grad-backend/internal/storage"
 	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
 	"log"
+	"os"
+	"time"
 )
 
 func main() {
-	// 加载配置
+	// 加载本地 .env（环境变量优先）
+	_ = godotenv.Load(".env")
+
 	cfg := config.LoadConfig()
-
-	// 初始化数据库
-	if err := db.InitDB(cfg); err != nil {
-		log.Fatal("Failed to initialize database:", err)
+	pool, err := db.InitPostgres(cfg)
+	if err != nil {
+		log.Fatalf("failed to init postgres: %v", err)
 	}
-
-	// 自动迁移数据库表
-	if err := autoMigrate(); err != nil {
-		log.Fatal("Failed to migrate database:", err)
-	}
-
-	// 初始化服务
-	authService := services.NewAuthService(cfg.JWTSecret)
-	ocrService := services.NewBaiduOCRService(cfg.BaiduAPIKey, cfg.BaiduSecretKey)
-	aiService := services.NewDeepSeekService(cfg.DeepSeekAPIKey)
-	fileStorage := storage.NewFileStorage(cfg.UploadPath)
 
 	// 创建Fiber应用
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			code := fiber.StatusInternalServerError
+			if e, ok := err.(*fiber.Error); ok {
+				code = e.Code
+			}
+			return c.Status(code).JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		},
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 30 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	})
 
-	// 设置路由
-	api.SetupRoutes(app, authService, ocrService, aiService, fileStorage)
+	// 设置统一系统路由（包含家长端和教师端）
+	api.SetupUnifiedRoutes(app, pool)
 
-	// 静态文件服务
-	app.Static("/uploads", cfg.UploadPath)
+	// 静态文件服务（模拟）
+	app.Static("/uploads", "./uploads")
 
 	// 启动服务器
-	log.Printf("Server starting on port %s", cfg.ServerPort)
-	log.Fatal(app.Listen(":" + cfg.ServerPort))
-}
+	port := os.Getenv("SERVER_PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Printf("🚀 智能改卷统一系统启动成功!")
+	log.Printf("📍 服务地址: http://localhost:%s", port)
+	log.Printf("🔗 API文档: http://localhost:%s/api", port)
+	log.Printf("👨‍🏫 教师端: http://localhost:%s/api/teacher/dashboard", port)
+	log.Printf("👨‍👩‍👧‍👦 家长端: http://localhost:%s/api/parent/dashboard", port)
+	log.Printf("❤️ 健康检查: http://localhost:%s/health", port)
+	log.Printf("🔐 用户登录: http://localhost:%s/api/auth/login", port)
 
-// 自动迁移数据库表
-func autoMigrate() error {
-	return db.GetDB().AutoMigrate(
-		&models.User{},
-		&models.GradingRecord{},
-		&models.TeacherTask{},
-	)
+	log.Fatal(app.Listen(":" + port))
 }

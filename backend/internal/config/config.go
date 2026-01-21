@@ -13,6 +13,7 @@ type Config struct {
 	DBUser     string
 	DBPassword string
 	DBName     string
+	PostgresURL string
 	ServerPort string
 	JWTSecret  string
 	UploadPath string
@@ -36,6 +37,7 @@ func LoadConfig() *Config {
 		DBUser:     getEnv("DB_USER", "root"),
 		DBPassword: getEnv("DB_PASSWORD", "Root123456!"),
 		DBName:     getEnv("DB_NAME", "auto_grad_web"),
+		PostgresURL: getEnv("POSTGRES_URL", ""),
 		ServerPort: getEnv("SERVER_PORT", "3000"),
 		JWTSecret:  getEnv("JWT_SECRET", "your-jwt-secret-key-change-in-production"),
 		UploadPath: getEnv("UPLOAD_PATH", "./uploads"),

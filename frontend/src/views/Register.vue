@@ -4,7 +4,7 @@
       <template #header>
         <div class="card-header">
           <h2>智能改卷助手</h2>
-          <p>家长端注册</p>
+          <p>欢迎注册</p>
         </div>
       </template>
 
@@ -46,9 +46,23 @@
 
         <el-form-item label="用户类型" prop="userRole">
           <el-radio-group v-model="registerForm.userRole">
-            <el-radio label="parent">家长</el-radio>
-            <el-radio label="teacher">教师</el-radio>
+            <el-radio label="parent">
+              <User style="margin-right: 8px" />
+              家长用户
+            </el-radio>
+            <el-radio label="teacher">
+              <School style="margin-right: 8px" />
+              教师用户
+            </el-radio>
           </el-radio-group>
+          <div class="role-description">
+            <span v-if="registerForm.userRole === 'parent'">
+              家长用户可以上传试卷进行AI智能批改
+            </span>
+            <span v-else-if="registerForm.userRole === 'teacher'">
+              教师用户可以创建自动化批改任务，批量处理试卷
+            </span>
+          </div>
         </el-form-item>
 
         <el-form-item>
@@ -76,9 +90,14 @@
 import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
+import { User, School } from "@element-plus/icons-vue";
 
 export default {
   name: "Register",
+  components: {
+    User,
+    School,
+  },
   setup() {
     const router = useRouter();
     const registerFormRef = ref();
@@ -146,11 +165,22 @@ export default {
 
         const data = await response.json();
 
-        if (response.ok) {
+        if (response.ok && data?.user && data?.token) {
+          const userRole = data.user.userRole || data.user.role || registerForm.userRole;
+
           localStorage.setItem("token", data.token);
           localStorage.setItem("user", JSON.stringify(data.user));
+          localStorage.setItem("userRole", userRole);
+          localStorage.setItem("username", data.user.username || registerForm.name);
+
           ElMessage.success("注册成功");
-          router.push("/");
+
+          // 根据角色跳转到对应页面
+          if (userRole === "teacher") {
+            router.push("/teacher");
+          } else {
+            router.push("/parent");
+          }
         } else {
           ElMessage.error(data.error || "注册失败");
         }
@@ -214,5 +244,19 @@ export default {
 :deep(.el-card__header) {
   background: #f8f9fa;
   border-bottom: 1px solid #e9ecef;
+}
+
+.role-description {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f0f9ff;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #606266;
+  line-height: 1.4;
+}
+
+:deep(.el-form-item__label) {
+  font-weight: 500;
 }
 </style>

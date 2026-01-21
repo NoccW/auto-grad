@@ -38,7 +38,7 @@ func (s *AuthService) CheckPassword(password, hash string) bool {
 
 func (s *AuthService) GenerateToken(user *models.User) (string, error) {
 	claims := &Claims{
-		UserID:   user.ID,
+		UserID:   uint(user.ID),
 		OpenID:   user.OpenID,
 		Role:     user.Role,
 		UserRole: "",

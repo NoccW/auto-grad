@@ -105,6 +105,20 @@
             />
           </el-card>
 
+          <!-- AI 反馈 -->
+          <el-card class="feedback-card" v-if="gradingRecord.feedback">
+            <template #header>
+              <h3>AI 评分反馈</h3>
+            </template>
+            <el-input
+              v-model="gradingRecord.feedback"
+              type="textarea"
+              :rows="4"
+              readonly
+              placeholder="AI 评分反馈"
+            />
+          </el-card>
+
           <!-- 错题分析 -->
           <el-card class="analysis-card" v-if="gradingRecord.wrongQuestions">
             <template #header>
@@ -172,7 +186,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import {
@@ -199,6 +213,7 @@ export default {
     const router = useRouter();
     const loading = ref(false);
     const gradingRecord = ref(null);
+    let pollTimer = null;
 
     const scorePercentage = computed(() => {
       return gradingRecord.value?.aiScore || 0;
@@ -246,6 +261,11 @@ export default {
         if (response.ok) {
           const data = await response.json();
           gradingRecord.value = data;
+          if (data.status === "processing" || data.status === "pending") {
+            schedulePoll();
+          } else {
+            clearPoll();
+          }
         } else {
           const errorData = await response.json();
           ElMessage.error(errorData.error || "加载结果失败");
@@ -255,6 +275,20 @@ export default {
         ElMessage.error("加载结果失败");
       } finally {
         loading.value = false;
+      }
+    };
+
+    const schedulePoll = () => {
+      clearPoll();
+      pollTimer = setTimeout(() => {
+        loadGradingResult();
+      }, 3000);
+    };
+
+    const clearPoll = () => {
+      if (pollTimer) {
+        clearTimeout(pollTimer);
+        pollTimer = null;
       }
     };
 
@@ -318,8 +352,13 @@ export default {
         );
 
         if (response.ok) {
-          ElMessage.success("重新批改完成");
-          await loadGradingResult();
+          ElMessage.success("已重新提交批改任务");
+          gradingRecord.value = {
+            ...(gradingRecord.value || {}),
+            status: "processing",
+            aiScore: 0,
+          };
+          schedulePoll();
         } else {
           const errorData = await response.json();
           ElMessage.error(errorData.error || "重新批改失败");
@@ -334,6 +373,10 @@ export default {
 
     onMounted(() => {
       loadGradingResult();
+    });
+
+    onUnmounted(() => {
+      clearPoll();
     });
 
     return {
@@ -431,6 +474,7 @@ export default {
 }
 
 .ocr-card,
+.feedback-card,
 .analysis-card,
 .answers-card {
   margin-bottom: 20px;

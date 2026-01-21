@@ -3,8 +3,8 @@
     <el-card class="login-card">
       <template #header>
         <div class="card-header">
-          <h2>智能改卷助手</h2>
-          <p>家长端登录</p>
+          <h2>智能改卷系统</h2>
+          <p>统一登录入口</p>
         </div>
       </template>
 
@@ -14,8 +14,8 @@
         ref="loginFormRef"
         label-width="80px"
       >
-        <el-form-item label="用户名" prop="openId">
-          <el-input v-model="loginForm.openId" placeholder="请输入用户名" />
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="loginForm.username" placeholder="请输入用户名" />
         </el-form-item>
 
         <el-form-item label="密码" prop="password">
@@ -26,6 +26,13 @@
             show-password
             @keyup.enter="handleLogin"
           />
+        </el-form-item>
+
+        <el-form-item label="角色" prop="role">
+          <el-radio-group v-model="loginForm.role">
+            <el-radio label="parent">家长端</el-radio>
+            <el-radio label="teacher">教师端</el-radio>
+          </el-radio-group>
         </el-form-item>
 
         <el-form-item>
@@ -62,13 +69,15 @@ export default {
     const loading = ref(false);
 
     const loginForm = reactive({
-      openId: "",
+      username: "",
       password: "",
+      role: "parent",
     });
 
     const rules = {
-      openId: [{ required: true, message: "请输入用户名", trigger: "blur" }],
+      username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
       password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+      role: [{ required: true, message: "请选择角色", trigger: "change" }],
     };
 
     const handleLogin = async () => {
@@ -91,8 +100,17 @@ export default {
         if (response.ok) {
           localStorage.setItem("token", data.token);
           localStorage.setItem("user", JSON.stringify(data.user));
+          localStorage.setItem("userRole", data.user.role);
+          localStorage.setItem("username", data.user.username);
+
           ElMessage.success("登录成功");
-          router.push("/");
+
+          // 根据角色跳转到对应页面
+          if (data.user.role === "teacher") {
+            router.push("/teacher");
+          } else {
+            router.push("/parent");
+          }
         } else {
           ElMessage.error(data.error || "登录失败");
         }
