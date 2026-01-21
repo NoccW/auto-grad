@@ -1,26 +1,12 @@
 {
-  "name": "auto-grad",
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "frontend/dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "https://your-backend-url.com/api/$1"
+      "source": "/api/(.*)",
+      "destination": "http://8.136.37.94:8080/api/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/frontend/$1"
+      "source": "/uploads/(.*)",
+      "destination": "http://8.136.37.94:8080/uploads/$1"
     }
-  ],
-  "env": {
-    "VITE_API_BASE_URL": "https://your-backend-url.com"
-  }
+  ]
 }
