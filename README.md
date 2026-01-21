@@ -1,88 +1,170 @@
-# 智能改卷助手
+# 智能改卷统一系统
 
-一个基于Go后端和Vue前端的智能试卷批改系统，支持OCR识别和AI评分功能。
+一个集成家长端和教师端的智能改卷系统，支持自动化作业批改、成绩分析和学习进度跟踪。
 
-## 项目架构
+## 🚀 Vercel 部署
 
-- **后端**: Go + Fiber框架 + GORM + MySQL
-- **前端**: Vue 3 + Element Plus + Vite
-- **数据库**: MySQL 8.0
-- **文件存储**: 本地文件系统
-- **AI服务**: 百度OCR + DeepSeek API
+本项目的前端已经配置好可以直接部署到Vercel：
 
-## 功能特性
+### 1. Fork 本仓库
 
-### 家长端功能
+```bash
+# 在 GitHub 上 fork https://github.com/NoccW/auto-grad.git
+```
 
-- ✅ 用户注册和登录
-- ✅ 试卷图片上传
-- ✅ OCR文字识别
-- ✅ AI智能评分
-- ✅ 批改结果展示
+### 2. 连接 Vercel
+
+- 访问 [vercel.com](https://vercel.com)
+- 点击 "New Project"
+- 导入你 fork 的仓库
+- Vercel 会自动检测到这是一个 Vue.js 项目
+
+### 3. 配置环境变量 (可选)
+
+```
+VITE_API_BASE_URL=http://localhost:8080
+```
+
+### 4. 部署
+
+- 点击 "Deploy" 按钮
+- 等待部署完成
+
+## 🎯 系统功能
+
+### 🏠 统一系统
+
+- ✅ 单一登录入口
+- ✅ 角色选择（家长/教师）
+- ✅ 角色权限控制
+- ✅ 角色切换功能
+
+### 👨‍👩‍👧‍👦 家长端
+
+- ✅ 学生信息管理
+- ✅ 作业上传提交
+- ✅ 成绩查看分析
+- ✅ 学习进度跟踪
 - ✅ 历史记录管理
-- ✅ 错题分析
 
-### 系统特性
+### 👨‍🏫 教师端
 
-- 🔐 JWT认证保护
-- 📱 响应式设计
-- 🚀 高性能异步处理
-- 📊 详细的数据统计
-- 🔍 搜索和筛选功能
+- ✅ 自动化任务创建
+- ✅ 批量改卷管理
+- ✅ 实时执行监控
+- ✅ 数据统计分析
+- ✅ 任务历史管理
 
-## 项目结构
+## 🔧 技术栈
+
+### 前端
+
+- **Vue 3** - 现代前端框架
+- **Element Plus** - UI 组件库
+- **Vue Router** - 路由管理
+- **Vite** - 构建工具
+- **Axios** - HTTP 客户端
+
+### 后端
+
+- **Go 1.25.0** - 主开发语言
+- **Fiber v2.52.10** - Web 框架
+- **JWT** - 用户认证
+- **CORS** - 跨域支持
+
+## 📱 访问地址
+
+### 生产环境 (Vercel 部署后)
+
+- **前端**: `https://your-project.vercel.app`
+- **后端**: 需要单独部署并配置 API 地址
+
+### 本地开发
+
+- **前端**: http://localhost:5174
+- **后端**: http://localhost:8080
+
+## 🔐 登录信息
+
+### 测试账号
+
+- **用户名**: 123123
+- **密码**: 123123
+- **角色**: 家长端 或 教师端
+
+## 📁 项目结构
 
 ```
-F:\Auto-grad-parents\
-├── backend\              # Go后端
-│   ├── main.go          # 主入口
-│   ├── .env             # 环境配置
-│   ├── internal\
-│   │   ├── api\         # API路由和处理器
-│   │   ├── config\      # 配置管理
-│   │   ├── db\          # 数据库连接
-│   │   ├── models\      # 数据模型
-│   │   ├── services\    # 业务服务
-│   │   └── storage\     # 文件存储
-│   └── uploads\         # 文件上传目录
-├── frontend\             # Vue前端
-│   ├── src\
-│   │   ├── views\       # 页面组件
-│   │   ├── components\  # 通用组件
-│   │   ├── router\      # 路由配置
-│   │   └── api\         # API调用
-│   ├── index.html
-│   ├── vite.config.js
-│   └── package.json
-├── database\             # 数据库相关
-│   └── schema.sql      # 数据库表结构
-└── docs\                # 项目文档
+auto-grad/
+├── frontend/           # Vue 前端项目
+│   ├── src/
+│   │   ├── views/     # 页面组件
+│   │   ├── router/    # 路由配置
+│   │   └── main.js    # 入口文件
+│   ├── dist/          # 构建输出
+│   └── package.json   # 前端依赖
+├── backend/           # Go 后端项目
+│   ├── internal/
+│   │   └── api/       # API 处理器
+│   ├── main.go        # 后端入口
+│   └── go.mod         # Go 模块
+├── database/          # 数据库文件
+└── README.md         # 项目说明
 ```
 
-## 快速开始
+## 🌐 API 接口
 
-### 1. 环境要求
+### 统一认证
 
-- Go 1.21+
-- Node.js 18+
-- MySQL 8.0+
+- `POST /api/auth/login` - 统一登录
+- `GET /api/auth/me` - 获取用户信息
+- `POST /api/auth/logout` - 退出登录
 
-### 2. 数据库设置
+### 家长端
 
-```sql
-CREATE DATABASE auto_grad_web CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
+- `GET /api/parent/dashboard` - 家长仪表板
+- `POST /api/parent/submit` - 提交作业
+- `GET /api/parent/results` - 获取成绩
+- `GET /api/parent/history` - 历史记录
 
-### 3. 后端启动
+### 教师端
+
+- `GET /api/teacher/dashboard` - 教师仪表板
+- `POST /api/teacher/tasks` - 创建任务
+- `GET /api/teacher/tasks` - 获取任务列表
+- `POST /api/teacher/tasks/:id/execute` - 执行任务
+
+## 🎨 界面预览
+
+### 统一登录界面
+
+- 支持角色选择
+- 现代化设计
+- 响应式布局
+
+### 家长端仪表板
+
+- 学生信息展示
+- 快速操作入口
+- 成绩统计分析
+
+### 教师端仪表板
+
+- 任务管理概览
+- 实时监控面板
+- 数据分析图表
+
+## 🚀 本地开发
+
+### 后端启动
 
 ```bash
 cd backend
-go mod tidy
-go build -o app.exe
-./app.exe
+go build -o server .
+./server
 ```
 
-### 4. 前端启动
+### 前端启动
 
 ```bash
 cd frontend
@@ -90,120 +172,23 @@ npm install
 npm run dev
 ```
 
-### 5. 访问系统
+## 🤝 贡献指南
 
-- 前端地址: http://localhost:5173
-- 后端API: http://localhost:3000
-- API文档: http://localhost:3000/health
+1. Fork 本仓库
+2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 创建 Pull Request
 
-## API接口
+## 📄 许可证
 
-### 认证相关
+本项目采用 MIT 许可证
 
-- `POST /api/auth/register` - 用户注册
-- `POST /api/auth/login` - 用户登录
-- `GET /api/auth/me` - 获取用户信息
+## 📞 联系方式
 
-### 批改相关
+- **项目地址**: https://github.com/NoccW/auto-grad
+- **问题反馈**: [Issues](https://github.com/NoccW/auto-grad/issues)
 
-- `POST /api/upload` - 文件上传
-- `POST /api/grading` - 创建批改记录
-- `GET /api/grading` - 获取批改列表
-- `GET /api/grading/:id` - 获取批改详情
-- `POST /api/grading/:id/process` - 处理批改
-- `DELETE /api/grading/:id` - 删除记录
+---
 
-## 配置说明
-
-### 后端配置 (.env)
-
-```env
-# 数据库配置
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=auto_grad_web
-
-# 服务器配置
-SERVER_PORT=3000
-JWT_SECRET=your-jwt-secret-key
-
-# API密钥配置
-BAIDU_API_KEY=your_baidu_api_key
-BAIDU_SECRET_KEY=your_baidu_secret_key
-DEEPSEEK_API_KEY=your_deepseek_api_key
-
-# 文件存储配置
-UPLOAD_PATH=./uploads
-```
-
-## 部署说明
-
-### 生产环境部署
-
-1. 编译前端: `npm run build`
-2. 编译后端: `go build -o server`
-3. 配置Nginx反向代理
-4. 使用PM2或systemd管理后端服务
-
-### Docker部署（可选）
-
-项目支持Docker容器化部署，详见docker-compose.yml
-
-## 开发说明
-
-### 添加新功能
-
-1. 后端: 在`internal/services`中添加业务逻辑
-2. 前端: 在`src/views`中添加页面组件
-3. API: 在`internal/api/handlers.go`中添加接口
-
-### 数据库迁移
-
-使用GORM的AutoMigrate功能自动创建数据表
-
-## 注意事项
-
-1. **API密钥**: 请确保正确配置百度OCR和DeepSeek API密钥
-2. **文件权限**: 确保uploads目录有读写权限
-3. **数据库**: 确保MySQL服务正在运行并且字符集为utf8mb4
-4. **端口占用**: 确保3000和5173端口未被占用
-
-## 故障排除
-
-### 常见问题
-
-1. **数据库连接失败**: 检查数据库配置和服务状态
-2. **API调用失败**: 检查网络连接和API密钥
-3. **文件上传失败**: 检查文件权限和磁盘空间
-
-## 技术栈详情
-
-### 后端技术
-
-- **框架**: Fiber v1.14.6 (高性能Web框架)
-- **ORM**: GORM (Go语言ORM库)
-- **数据库**: MySQL 8.0
-- **认证**: JWT (JSON Web Token)
-- **文件处理**: Multipart Form Data
-
-### 前端技术
-
-- **框架**: Vue 3.5.26 (响应式前端框架)
-- **UI库**: Element Plus 2.13.1 (Vue 3组件库)
-- **构建工具**: Vite 7.3.1 (现代前端构建工具)
-- **路由**: Vue Router 4.6.4 (官方路由管理)
-- **HTTP客户端**: Axios 1.13.2 (Promise风格HTTP库)
-
-## 许可证
-
-MIT License
-
-## 贡献
-
-欢迎提交Issue和Pull Request来改进项目。
-
-## 联系方式
-
-如有问题，请通过Issue联系我们。
+⭐ 如果这个项目对你有帮助，请给个 Star！
